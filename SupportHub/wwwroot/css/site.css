@@ -91,10 +91,16 @@ body {
             color: #e0e0e0; /* Color del texto del reloj y fecha en modo oscuro */
         }
 
-.encabezado-personalizado {
-    background-color: #05173B;
-    color: white;
-}
+        body.dark-mode span.iti__country-name,
+        body.dark-mode span.iti__dial-code,
+        body.dark-mode div.iti__selected-flag {
+            color: black;
+        }
+
+        .encabezado-personalizado {
+            background-color: #05173B;
+            color: white;
+        }
 
     .encabezado-personalizado .btn-close {
         filter: invert(1); /* Esto hace que el botón de cerrar sea blanco */

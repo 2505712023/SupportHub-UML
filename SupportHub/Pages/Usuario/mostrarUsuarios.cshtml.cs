@@ -233,6 +233,7 @@ namespace SupportHub.Pages.Usuario
                                 comando.Parameters.AddWithValue("@codEmpleado",codEmpleado);
                                 comando.Parameters.AddWithValue("@rol",newUsuario.RolUsuario);
                                 comando.ExecuteNonQuery();
+                                exito = true;
                             }
                         }
                     }
