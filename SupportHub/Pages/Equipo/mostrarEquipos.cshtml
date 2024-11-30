@@ -1,0 +1,284 @@
+﻿@page
+@model SupportHub.Pages.Equipo.mostrarEquiposModel
+@{
+    ViewData["Title"] = "Equipos";
+    Layout = "_Layout";
+}
+<br />
+
+<link rel="stylesheet" href="~/css/estiloEquipos.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.css" />
+<div class="content-wrapper" style="max-width: 1450px; border-radius: 20px;">
+  <h1>Gestión de Equipos</h1>
+
+  <div class="row mb-3">
+      <div class="col-md-8">
+          <form method="get">
+                <div class="search-bar d-flex">
+                  <input type="text" name="searchQuery" class="form-control me-2" placeholder="Buscar por código, tipo de equipo o marca de equipo..."
+                         value="@Request.Query["searchQuery"]" oninput="checkSearch(this)" />
+                  <button type="submit" class="btn"><i class="fas fa-search"></i>Buscar</button>
+              </div>
+          </form>
+      </div>
+        @if (User.IsInRole("Administrador") || User.IsInRole("Técnico"))
+        {
+            <div class="col-md-4 text-end">
+                <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#AgregarModificar">
+                    <i class="fas fa-plus-circle"></i> Agregar Equipo
+                </button> 
+            </div>
+        }
+    </div>
+  <div class="contenedor-tabla">
+      <table class="table table-hover align-middle text-center" style="max-width: 1700px; width: 100%;">
+         <thead>
+             <tr>
+                 <th>Código</th>
+                 <th>Tipo de Equipo</th>
+                 <th>Marca de Equipo</th>
+                 <th>Modelo de Equipo</th>
+                 <th>Cantidad Adquirida</th>
+                 <th>Cantidad Disponible</th>
+                 <th>Precio de Equipo</th>
+                 <th>Proveedor</th>
+                 <th>Descripción</th>
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Técnico"))
+                    {
+                        <th>Acciones</th>
+                    }
+                </tr>
+         </thead>
+            <tbody id="equiposBody">
+             @foreach (var item in Model.listaEquipos)
+                {
+                    <tr data-codigo="@item.codEquipo" 
+                    data-tipoequipo="@item.tipoEquipo"
+                        data-marcaequipo="@item.marcaEquipo"
+                        data-modeloequipo="@item.modeloEquipo"
+                        data-cantidadequipo="@item.cantidadAdquirida"
+                        data-precioequipo="@item.precioEquipo"
+                        data-idproveedor="@item.idProveedor" 
+                        data-descripcionequipo="@item.descripcionEquipo">
+                        <td align="left">@item.codEquipo</td>
+                        <td align="left">@item.tipoEquipo</td>
+                        <td align="left">@item.marcaEquipo</td>
+                        <td align="left">@item.modeloEquipo</td>
+                        <td align="center">@item.cantidadAdquirida</td>
+                        <td align="center">@item.cantidadDisponible</td>
+                        <td align="center">@item.precioEquipo.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</td>
+                        <td align="left">@item.nombreproveedor</td>
+                        <td align="left">@item.descripcionEquipo</td>
+                        @if (User.IsInRole("Administrador") || User.IsInRole("Técnico"))
+                        { 
+                            <td class="acciones">
+                                <button class="btn btn-edit" onclick="llenarModal(this)" data-bs-toggle="modal" data-bs-target="#AgregarModificar">
+                                    <i class="fas fa-pen"></i> Modificar
+                                </button>
+                                @if (User.IsInRole("Administrador"))
+                                {
+                                    <button class="btn btn-delete" onclick="llenarModalEliminar(this)" data-bs-toggle="modal" data-bs-target="#Eliminar">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+         </tbody>
+         </table>
+      </div>
+
+    <div id="pagination" class="pagination">
+        <ul class="pagination-list"></ul>
+    </div>
+</div>
+
+<!--Modal para equipo-->
+<div class="modal fade" id="AgregarModificar" tabindex="-1" aria-labelledby="AgregarModificar" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="AgregarModificar">Agregar Equipo</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalEquipo()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-page-handler="GuardarEquipo" id="formAgregarEquipo">
+                    <!-- Campo de ID -->
+                    <input type="hidden" id="codigo" name="codigo" value="" />
+
+                    <!-- Campo de EsModificacion -->
+                    <input type="hidden" id="esModificacion" name="esModificacion" value="false" />
+
+                    <!-- Campo TipoEquipo -->
+                    <div class="mb-3">
+                        <label for="tipoequipo">Tipo de Equipo:</label>
+                        <input type="text" maxlength="50" required class="form-control" id="tipoequipo" name="tipoequipo">
+                    </div>
+
+                    <!-- Campo MarcaEquipo-->
+                    <div class="mb-3">
+                        <label for="marcaequipo">Marca de Equipo:</label><br />
+                        <input type="text" maxlength="50" required class="form-control" id="marcaequipo" name="marcaequipo">
+                    </div>
+
+                    <!-- Campo Modeloequipo -->
+                    <div class="mb-3">
+                        <label for="modeloequipo">Modelo de Equipo:</label><br />
+                        <input type="text" maxlength="50"  required class="form-control" id="modeloequipo" name="modeloequipo">
+                    </div>
+
+                    <!-- Campo CantidadEquipo -->
+                    <div class="mb-3">
+                        <label for="cantidadequipo">Cantidad de Equipo:</label>
+                        <input type="number" placeholder="0" step="1" min="1" max="1000000" oninput="this.value = Math.min(this.value, 1000000)" class="form-control" id="cantidadequipo" name="cantidadequipo" required>
+                    </div>
+
+                     <!-- Campo PrecioEquipo -->
+                    <div class="mb-3">
+                        <label for="precioequipo">Precio de Equipo:</label>
+                        <input type="number" required class="form-control" id="precioequipo" name="precioequipo" step="0.01" placeholder="0.00">
+                    </div>
+
+                    <!-- Campo de Proveedor -->
+                    <div class="mb-3">
+                        <label for="proveedor">Nombre de Proveedor:</label>
+                        <div class="col-sm-6">
+                            <select class="form-select" id="idProveedor" name="idProveedor" asp-items="Model.Proveedor">
+                                <option value="">-- Seleccione --</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                     <!-- Campo DescripcionEquipo -->
+                    <div class="mb-3">
+                        <label for="descripcionequipo">Descripción de Equipo:</label><br />
+                        <textarea class="form-control" name="descripcionequipo" placeholder="Agregar observación (opcional)..." id="descripcionequipo" rows="3" ></textarea>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarModalEquipo()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="validarFormularioEmpleado()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar un Equipo -->
+<div class="modal fade" id="Eliminar" tabindex="-1" aria-labelledby="Eliminar" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="AgregarModificar">Eliminar Equipo</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalEliminar()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Seguro que desea eliminar un equipo?</p>
+                <form method="post" id="formEliminarEquipo">
+                    <input type="hidden" name="codigo" id="codigo" value="" />
+                    <input type="hidden" name="esEliminacion" id="esEliminacion" value="" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarModalEliminar()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="validarFormularioEliminar()" id="btnEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/scriptEquipos.js"></script>
+    <script type="text/javascript">
+        // Verifica si la operación fue exitosa
+       //validar que exito no sea nulo y que sea true, también que no se haya eliminado a nadie 
+      // para que no se confunda y no muestre el alert de Eliminado correctamente
+        @if (TempData["exito"] != null && (bool)TempData["exito"] && TempData["eliminado"] != null && (bool)TempData["eliminado"] == false)
+        {
+            <text>
+                Swal.fire({
+                title: "¡Excelente!",
+                text: "El equipo se ha guardado exitosamente.",
+                icon: "success",
+                confirmButtonText: "OK"
+                });
+            </text>
+            Model.exito = false;
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorSQL = ViewData["ErrorSQL"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorSQL))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorSQL}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirigir a la página Index
+                        window.location.href = '../Index';
+                    }
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorMessage = TempData["ErrorMessage"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorMessage}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        // Verifica si la operación fue exitosa
+        //validar que exito no sea nulo y que sea falso, también que intentoRealizado no sea nulo y que sea verdadero
+    @if (TempData["exito"] != null && (bool)TempData["exito"] == false && TempData["intentoRealizado"]!= null && (bool)TempData["intentoRealizado"])
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: "Hubo un error al guardar el equipo. Valide que el código o el nombre del equipo no exista.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+            // Verifica si la operación fue exitosa
+            //validar que exito no sea nulo y que sea true, también que eliminado no sea nulo y que sea verdadero
+        @if (TempData["exito"] != null && (bool)TempData["exito"] == true && TempData["eliminado"] != null && (bool)TempData["eliminado"])
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                    text: "El equipo se ha eliminado exitosamente.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+}

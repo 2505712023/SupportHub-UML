@@ -1,0 +1,277 @@
+﻿@page
+@model SupportHub.Pages.Proveedor.mostrarProveedorModel
+@{
+    ViewData["Title"] = "Proveedores";
+    Layout = "_Layout";
+}
+<br />
+
+<link rel="stylesheet" href="~/css/estiloPantallas.css">
+<!-- CSS de intl-tel-input -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.css" />
+
+
+<div class="content-wrapper" style="max-width: 1300px; border-radius: 20px;">
+    <h1>Gestión de Proveedores</h1>
+
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <form method="get">
+                <div class="search-bar d-flex">
+                    <input type="text" name="searchQuery" class="form-control me-2" placeholder="Buscar por código o nombre de proveedor..."
+                           value="@Request.Query["searchQuery"]" oninput="checkSearch(this)" />
+                    <button type="submit" class="btn"><i class="fas fa-search"></i>Buscar</button>
+                </div>
+            </form>
+        </div>
+        @if (User.IsInRole("Administrador"))
+        {
+            <div class="col-md-4 text-end">
+                <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#AgregarModificar">
+                    <i class="fas fa-plus-circle"></i> Agregar Proveedor
+                </button>
+            </div>
+        }
+    </div>
+
+    <div class="contenedor-tabla">
+        <table class="table table-hover align-middle text-center" style="max-width: 1200px; width: 100%;">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th class="text-truncate col-nombre">Nombre</th>
+                    <th class="text-truncate col-direccion">Dirección</th>
+                    <th>Teléfono</th>
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Técnico"))
+                    {
+                        <th class="acciones">Acciones</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.listaProveedores)
+                {
+                    <tr data-codigo="@item.codProveedor" data-nombre="@item.nombreProveedor" data-direccion="@item.direccionProveedor" data-telefono="@item.telefonoProveedor" data-id="@item.idProveedor">
+                        <td align="left">@item.codProveedor</td>
+                        <td align="left">@item.nombreProveedor</td>
+                        <td style="max-width: 20%" align="left">@item.direccionProveedor</td>
+                        <td align="left">@item.telefonoProveedor</td>
+                        @if (User.IsInRole("Administrador") || User.IsInRole("Técnico"))
+                        {
+                            <td class="acciones">
+                                <div class="botones">
+                                    <button class="btn btn-edit" onclick="llenarModal(this)" data-bs-toggle="modal" data-bs-target="#AgregarModificar">
+                                        <i class="fas fa-pen"></i> Modificar
+                                    </button>
+                                    @if (User.IsInRole("Administrador"))
+                                    { //solo el administrador puede ver este botón
+                                        <button class="btn btn-delete" onclick="llenarModalEliminar(this)" data-bs-toggle="modal" data-bs-target="#Eliminar" >
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para agregar un nuevo proveedor -->
+<div class="modal fade" id="AgregarModificar" tabindex="-1" aria-labelledby="AgregarModificar" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="AgregarModificar">Agregar Proveedor</h1>
+                <button type="button" class="btn-close" onclick="limpiarModal()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="formAgregarProveedor">
+                    <!-- Campo de ID -->
+                    <input type="hidden" id="id" name="id" value="" />
+
+                    <!-- Campo de EsModificacion -->
+                    <input type="hidden" id="esModificacion" name="esModificacion" value="false" />
+
+                    <!-- Campo de Código -->
+                    <div class="mb-3">
+                        <label for="codigo">Código:</label>
+                        <input type="text" maxlength="8" required class="form-control" id="codigo" name="Codigo">
+                    </div>
+
+                    <!-- Campo de Nombre -->
+                    <div class="mb-3">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" maxlength="50" required class="form-control" id="nombre" name="nombre">
+                    </div>
+
+                    <!-- Campo de Dirección -->
+                    <div class="mb-3">
+                        <label for="direccion">Dirección:</label>
+                        <input type="text" maxlength="100" required class="form-control" id="direccion" name="direccion">
+                    </div>
+                   
+                    <!-- Campo de Teléfono -->
+                    <div class="mb-3">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="text" maxlength="14" required class="form-control" id="telefono" name="telefono">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarModal()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="validarFormulario()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar un proveedor -->
+<div class="modal fade" id="Eliminar" tabindex="-1" aria-labelledby="Eliminar" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="AgregarModificar">Eliminar Proveedor</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalEliminar()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Seguro que desea eliminar un proveedor?</p>
+                <form method="post" id="formEliminarProveedor">
+                    <input type="hidden" name="idProveedor" id="idProveedor" value="" />
+                    <input type="hidden" name="esEliminacion" id="esEliminacion" value="" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarModalEliminar()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="validarFormularioEliminar()" id="btnEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        // Verifica si la operación fue exitosa
+       //validar que exito no sea nulo y que sea true, también que no se haya eliminado a nadie 
+      // para que no se confunda y no muestre el alert de Eliminado correctamente
+        @if (TempData["exito"] != null && (bool)TempData["exito"] && TempData["eliminado"] != null && (bool)TempData["eliminado"] == false)
+        {
+            <text>
+                Swal.fire({
+                title: "¡Excelente!",
+                text: "El proveedor se ha guardado exitosamente.",
+                icon: "success",
+                confirmButtonText: "OK"
+                });
+            </text>
+            Model.exito = false;
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorSQL = ViewData["ErrorSQL"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorSQL))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorSQL}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirigir a la página Index
+                        window.location.href = '../Index';
+                    }
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorMessage = TempData["ErrorMessage"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorMessage}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        // Verifica si la operación fue exitosa
+        //validar que exito no sea nulo y que sea falso, también que intentoRealizado no sea nulo y que sea verdadero
+    @if (TempData["exito"] != null && (bool)TempData["exito"] == false && TempData["intentoRealizado"]!= null && (bool)TempData["intentoRealizado"])
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: "Hubo un error al guardar el registro, valide que el código o el nombre del proveedor no exista.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+            // Verifica si la operación fue exitosa
+            //validar que exito no sea nulo y que sea true, también que eliminado no sea nulo y que sea verdadero
+        @if (TempData["exito"] != null && (bool)TempData["exito"] == true && TempData["eliminado"] != null && (bool)TempData["eliminado"])
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                    text: "El proveedor ha sido eliminado exitosamente.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+     <!--Script de intl-tel-input-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/js/intlTelInput.min.js"></script>
+
+    <script type="text/javascript">
+         var iti;
+
+        // Ejecuta el código solo cuando el DOM esté completamente cargado
+        document.addEventListener("DOMContentLoaded", function () {
+            // Selecciona el input de teléfono
+            var input = document.querySelector("#telefono");
+            iti = window.intlTelInput(input, {
+                onlyCountries: ["sv", "us", "cn", "jp", "de", "kr", "il", "in", "sg", "nl", "se", "ch", "fi", "cr", "pa", "es", "mx"],  // Lista de países exportadores de tecnología
+                preferredCountries: ["sv", "us", "cn", "jp", "de", "kr"], // Lista de países que se mostrarán a la cabecera siempre
+                separateDialCode: true,  // Muestra el código del país por separado
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/js/utils.js",  // Script adicional para funciones de validación y formato
+            });
+        
+        //este evento es para darle formato al número de teléfono cuando el input pierda el foco
+        input.addEventListener("blur", function () {
+            getFormattedNumber();
+        });
+        });
+
+        //Función para obtener el número formateado
+        function getFormattedNumber() {
+            if (iti) {
+                var numeroFormateado = iti.getNumber(); // Obtiene el número en formato internacional
+                document.querySelector("#telefono").value = numeroFormateado; // Asigna el número formateado al input de teléfono
+            }
+        }
+    </script>
+}

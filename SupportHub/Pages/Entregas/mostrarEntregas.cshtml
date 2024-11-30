@@ -1,0 +1,306 @@
+﻿@page
+@model SupportHub.Pages.Entregas.mostrarEntregasModel
+@{
+    ViewData["Title"] = "Entregas";
+    Layout = "_Layout";
+}
+<br />
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/estiloEntregas.css">
+}
+
+<div class="content-wrapper" style="max-width: 1800px; border-radius: 20px;">
+    <h1>Gestión de Entregas</h1>
+
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-8">
+            <form method="get">
+                <div class="d-flex align-items-center search-bar">
+                    <input type="text" id="busqueda" name="busqueda" class="form-control me-2" placeholder="Buscar entrega ..."/>
+                    <button type="button" class="btn" onclick="limpiarFiltroEntregas()" id="btn-limpiar-filtro"><i class="fa fa-times" aria-hidden="true"></i></button>
+                    <select class="form-select select-filtro me-2" id="filtros">
+                        <option value="0">Código</option>
+                        <option value="1">Tipo de Entrega</option>
+                        <option value="2">Equipo</option>
+                        <option value="3">Cantidad Entrega</option>
+                        <option value="4">Empleado Entregó</option>
+                        <option value="5">Empleado Recibió</option>
+                        <option value="6">Fecha Entrega</option>
+                        <option value="7">Fecha Devolución</option>
+                        <option value="8">Observación Entrega</option>
+                    </select>
+                    <button type="submit" class="btn"><i class="fas fa-search"></i>Buscar</button>
+                </div>
+            </form>
+        </div>
+        @if (User.IsInRole("Administrador") || User.IsInRole("Técnico"))
+        {
+            <div class="col-md-4 text-end">
+                <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#modalEntregas" onclick="openModal('agregar')">
+                    <i class="fas fa-plus-circle"></i> Agregar Entrega
+                </button>
+            </div>
+        }
+    </div>
+
+    <div class="contenedor-tabla">
+        <table class="table table-hover align-middle text-center" id="tablaEntregas" style="max-width: 1800px; width: 100%;">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Tipo de Entrega</th>
+                    <th>Equipo</th>
+                    <th>Cantidad Entrega</th>
+                    <th>Empleado Entregó</th>
+                    <th>Empleado Recibió</th>
+                    <th>Fecha Entrega</th>
+                    <th>Fecha Devolución</th>
+                    <th>Observación Entrega</th>
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Técnico"))
+                    {   //los usuarios con rol Común no podrán ver esta columna
+                        <th>Acciones</th>
+                    }
+                </tr>
+            </thead>
+            <tbody id="entregasBody">
+                @foreach (var item in Model.listaEntregas)
+                {
+                    <tr data-id-entrega="@item.idEntrega"
+                        data-cod-entrega="@item.codEntrega"
+                        data-id-tipo-entrega="@item.idTipoEntrega"
+                        data-id-equipo="@item.idEquipo"
+                        data-cantidad-entrega="@item.cantidadEntrega"
+                        data-nombre-empleado-entrega="@item.nombreEmpleadoEntrego"
+                        data-id-empleado-recibe="@item.idEmpleadoRecibe"
+                        data-fecha-entrega="@(Convert.ToDateTime(item.fechaEntrega).ToString("yyyy-MM-dd"))"
+                        data-observacion-entrega="@item.observacionEntrega"
+                        data-fecha-devolucion="@(string.IsNullOrEmpty(item.fechaDevolucion) ? string.Empty : Convert.ToDateTime(item.fechaDevolucion).ToString("yyyy-MM-dd"))">
+                        <td align="center">@item.codEntrega</td>
+                        <td align="center">@item.nombreTipoEntrega</td>
+                        <td align="left">@item.equipo</td>
+                        <td align="center">@item.cantidadEntrega</td>
+                        <td align="left">@item.nombreEmpleadoEntrego</td>
+                        <td align="left">@item.nombreEmpleadoRecibio</td>
+                        <td align="center" style="white-space: nowrap;">@item.fechaEntrega</td>
+                        <td align="center" style="white-space: nowrap;" id="fechaDevolucion">@item.fechaDevolucion</td>
+                        <td align="left">@item.observacionEntrega</td>
+                        @if (User.IsInRole("Administrador") || User.IsInRole("Técnico"))
+                        {
+                            <td>
+                                <div class="contenedor-botones">
+                                    <button class="btn btn-edit btn-acciones" onclick="openModal('modificar', this)" data-bs-toggle="modal" data-bs-target="#modalEntregas" data-bs-placement="top" title="Modificar">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    @if (User.IsInRole("Administrador"))
+                                    { 
+                                        <button class="btn btn-delete btn-acciones" onclick="openModal('eliminar', this)" data-bs-toggle="modal" data-bs-target="#modalEntregas" data-bs-placement="top" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                    @if (string.IsNullOrEmpty(item.fechaDevolucion))
+                                    {
+                                        <button class="btn btn-warning btn-acciones" onclick="openModal('agregarDevolucion', this)" id="devolucion" data-bs-toggle="modal" data-bs-target="#modalEntregas" data-bs-placement="top" title="Devolución">
+                                            <i class='fas fa-rotate-left'></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-warning btn-acciones" onclick="openModal('eliminarDevolucion', this)" id="devolucion" data-bs-toggle="modal" data-bs-target="#modalEntregas" data-bs-placement="top" title="Eliminar Devolución">
+                                            <i class='fa fa-times' aria-hidden='true'></i>
+                                        </button>
+                                    }
+                                    <a asp-page-handler="DownloadFile" asp-route-id="@item.idEntrega" class="btn btn-info btn-acciones btn-download" data-bs-placement="top" title="Descargar"><i class="fa-solid fa-download"></i></a>
+                                    <a asp-page-handler="EnviarPorCorreo" asp-route-id="@item.idEntrega" method="post" class="btn btn-info btn-acciones btn-email" data-bs-placement="top" title="Enviar Email"><i class="fa-solid fa-envelope"></i></a>
+                                </div>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div id="pagination" class="pagination">
+        <ul class="pagination-list"></ul>
+    </div>
+</div>
+
+<!-- Modal para adicionar, modificar, confirmar eliminación, agregar devolución o eliminar devolución de entregas -->
+<div class="modal fade" id="modalEntregas" tabindex="-1" aria-labelledby="modalEntregasLabel" aria-hidden="true">
+    <div class="modal-dialog modal-entregas">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="modalTitle">Agregar Entrega</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalEntregas()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="formEntregas">
+                <div class="modal-body" id="modalBody">
+
+                    <select class="form-select" name="idTipoEntrega" id="formIdTipoEntrega">
+                        <option value="">-- Seleccione tipo de entrega --</option>
+                        @Html.Raw(Model.GetTiposDeEntregas())
+                    </select>
+
+                    <select class="form-select" name="idEmpleadoEntrega" id="formIdEmpleadoEntrega" disabled>
+                        <option value="@HttpContext.Session.GetString("idEmpleado")">@User.Identity.Name</option>
+                    </select>
+
+                    <select class="form-select" name="idEmpleadoRecibe" id="formIdEmpleadoRecibe">
+                        <option value="">-- Seleccione empleado que recibe --</option>
+                        @Html.Raw(Model.GetEmpleados())
+                    </select>
+
+                    <select class="form-select" name="idEquipo" id="formIdEquipo">
+                        <option value="">-- Seleccione equipo --</option>
+                        @Html.Raw(Model.GetEquipos())
+                    </select>
+
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarModalEntregas()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="modalActionButton" onclick="submitFormEntregas()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src="/js/scriptEntregas.js"></script>
+    <script type="text/javascript">
+        // Verifica si la operación fue exitosa
+        @if (Model.exito == true)
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                    text: "La entrega se ha guardado exitosamente.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorConexion = ViewData["errorConexion"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorConexion))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorConexion}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '../Index';
+                    }
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorSQL = ViewData["errorSQL"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorSQL))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorSQL}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorMessage = TempData["ErrorMessage"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorMessage}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+            // Verifica si la operación fue exitosa
+        @if (Model.eliminada == true)
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                    text: "La entrega se ha eliminado exitosamente.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+            // Verifica si la operación fue exitosa
+        @if (Model.devolucion == true)
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                    text: "La fecha de devolución se ha guardado exitosamente.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+            // Verifica si la operación fue exitosa
+        @if (Model.devolucionEliminada == true)
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                text: "La fecha de devolución se ha eliminado exitosamente.",
+                icon: "success",
+                confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" ></script>
+    <script>
+        // Mostrar la alerta si hay un mensaje en TempData
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: '@Html.Raw(TempData["SuccessMessage"])',
+                    icon: 'success',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            </text>
+        }
+
+    </script>
+}

@@ -1,0 +1,260 @@
+﻿@page
+@model mostrarUsuariosModel
+@{
+	ViewData["Title"] = "Usuarios";
+    Layout = "_Layout";
+}
+<link rel="stylesheet" href="~/css/estiloPantallas.css">
+<link rel="stylesheet" href="~/css/estiloUsuarios.css">
+
+<div class="content-wrapper" style="max-width: 1500px; border-radius: 20px;">
+    <h1>Usuarios</h1>
+
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <form method="get">
+                <div class="search-bar d-flex">
+                    <input type="text" id="inputBuscador" name="searchQuery" class="form-control me-2" placeholder="Buscar por código o nombre de usuario..."
+                           value="@Request.Query["searchQuery"]" oninput="checkSearch(this)" />
+                    
+                    <button type="submit" class="btn"><i class="fas fa-search"></i>Buscar</button>
+                </div>
+            </form>
+			<div class="suggestions" id="suggestions1"></div>
+        </div>
+        <div class="col-md-4 text-end">
+            <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#AgregarModificar">
+                <i class="fas fa-plus-circle"></i> Agregar Usuario
+            </button>
+        </div>
+    </div>
+
+    <div class="contenedor-tabla">
+        <table class="table table-hover align-middle text-center" style="max-width: 1500px; width: 100%;">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th class="text-truncate col-nombre">Nombre</th>
+                    <th class="text-truncate col-apellido">Apellidos</th>
+                    <th class="text-truncate col-activo">Activo</th>
+                    <th class="text-truncate col-activo">Rol</th>
+                    <th class="text-truncate" col-codempleado>Código de empleado</th>
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <th class="acciones">Acciones</th>
+                    }
+                </tr>
+            </thead>
+          <tbody id="TBody">
+    @foreach (var item in Model.listaUsuarios)
+    {
+        <tr data-usuario="@item.LoginUsuario" data-empleado="@item.CodEmpleado @item.NombreUsuario @item.ApellidoUsuario" data-activo="@item.ActivoUsuario" data-rol="@item.RolUsuario" data-contra="@item.ClaveUsuario" data-id="@item.IDUsuario">
+            <td align="left">@item.LoginUsuario</td>
+            <td align="left">@item.NombreUsuario</td>
+            <td align="left">@item.ApellidoUsuario</td> 
+            <td align="center"><input type="checkbox" class="form-check-input" disabled  @(item.ActivoUsuario ? "checked" : "") /></td>
+            <td align="left">@item.RolUsuario</td>
+            <td align="left">@item.CodEmpleado</td>
+            @if (User.IsInRole("Administrador"))
+            {
+                <td class="acciones">
+                    <div class="botones">
+                        <button class="btn btn-edit" onclick="llenarModalModificarUsuario(this)" data-bs-toggle="modal" data-bs-target="#AgregarModificar">
+                            <i class="fas fa-pen"></i> Modificar
+                        </button>
+                        <button class="btn btn-delete" onclick="llenarModalEliminar(this)" data-bs-toggle="modal" data-bs-target="#Eliminar">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </td>
+            }
+        </tr>
+    }
+</tbody>
+        </table>
+    </div>
+    <!-- Paginación  -->
+    <div id="pagination" class="pagination">
+        <ul class="pagination-list"></ul>
+    </div>
+</div>
+
+<!-- Modal para agregar o modificar un  Usuario -->
+<div class="modal fade" id="AgregarModificar" tabindex="-1" aria-labelledby="AgregarModificar" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="AgregarModificar">Agregar Usuario</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalModificarUsuario()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="formAgregarUsuario">
+                    <!-- Campo de ID usuario-->
+                    <input type="hidden" id="id" name="id" value="" />
+
+                    <!-- Campo de EsModificacion -->
+                    <input type="hidden" id="esModificacion" name="esModificacion" value="false" />
+
+					<!-- Campo de datos del empleado -->
+					<div id="containerEmployes" class="mb-3">
+						<label for="nombre">Empleado:</label>
+                        <input type="text" required class="form-control" id="nombre" name="nombre" autocomplete="off">
+                        <div class="suggestions" id="suggestions2"></div>
+					</div>
+
+                    <!-- Campo de Usuario -->
+                    <div class="mb-3">
+                        <label for="usuario">Usuario:</label>
+                        <input type="text" required class="form-control" id="usuario" name="usuario">
+                    </div>
+
+                    <!-- Campo de contraseña -->
+                    <div class="mb-3 password-container">
+                        <label for="contraseña">Contraseña:</label>
+                        <input type="password" required class="form-control contra" id="contraseña" name="contraseña">
+                        <i id="ojo1" class="bi bi-eye-slash"></i>
+                    </div>
+
+                    <!-- Campo de confirmar contraseña -->
+                    <div class="mb-3 password-container">
+                        <label for="contra2">Confirmar contraseña:</label>
+                        <input type="password" required class="form-control contra" id="contra2" name="validarcontraseña">
+                        <i id="ojo2" class="bi bi-eye-slash"></i>
+                    </div>
+
+                    <!-- Campo de Usuario activo -->
+                    <div class="mb-3">
+                        <label for="codEmpleado">Usuario activo</label>                       
+                        <input type="checkbox" id="activo" name="activo" />
+                    </div>
+                    <!--campo para mostrar tipos de usuario-->
+                    <div class="mb-3">
+                        <label for="TipoUsuario">Tipo de usuario</label>
+                        <select class="form-control" id="TipoUsuario" name="rol">
+                            <option disabled value="">Selecciona un rol</option> 
+                            @foreach (var rol in Model.Roles) 
+                            {
+                                <option value="@rol.RolUsuario">@rol.RolUsuario</option> 
+                            }
+                        </select>
+                    </div>
+                
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarModalModificarUsuario()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="validarFormularioUsuario()" id="enviar">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar un usuario -->
+<div class="modal fade" id="Eliminar" tabindex="-1" aria-labelledby="Eliminar" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="AgregarModificar">Eliminar usuario</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalEliminar()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar al usuario <strong id="nombreUsuarioEliminar"></strong>?</p>
+                <form method="post" id="formEliminarUsuario">
+                    <input type="hidden" name="usuario" id="usuario" value="" /> <!-- Captura LoginUsuario -->
+                    <input type="hidden" name="esEliminacion" id="esEliminacion" value="true" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarModalEliminar()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-danger" form="formEliminarUsuario">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src="~/js/Usuario.js"></script>
+
+    <script type="text/javascript">
+        @if (TempData["exito"] != null && (bool)TempData["exito"])
+        {
+            <text>
+                Swal.fire({
+                title: "¡Excelente!",
+                text: "Usuario guardado exitosamente.",
+                icon: "success",
+                confirmButtonText: "OK"
+                });
+            </text>
+        }
+        //si se ha buscado un usuario que no existe
+        @if (TempData["usuarioEncontrado"] != null && !(bool)TempData["usuarioEncontrado"])
+        {
+            <text>
+                Swal.fire({
+                title: "Oops...",
+                text: "El usuario que busca no existe.",
+                icon: "error",
+                confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+            // Verifica si la operación fue exitosa
+            //validar que exito no sea nulo y que sea true, también que eliminado no sea nulo y que sea verdadero
+        @if (TempData["exito"] != null && (bool)TempData["exito"] == true && TempData["eliminado"] != null && (bool)TempData["eliminado"])
+        {
+            <text>
+                Swal.fire({
+                title: "¡Excelente!",
+                text: "El usuario se ha eliminado exitosamente.",
+                icon: "success",
+                confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorSQL = ViewData["ErrorSQL"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorSQL))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorSQL}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirigir a la página Index
+                        window.location.href = '../Index';
+                    }
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorMessage = TempData["ErrorMessage"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorMessage}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+}

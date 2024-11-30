@@ -1,0 +1,50 @@
+﻿body {
+    padding-top: 56px;
+}
+
+.offcanvas-start {
+    background-color: #05173B;
+}
+
+.nav-link {
+    font-size: 1.5rem;
+    text-align: center;
+    color: white !important;
+    padding: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+    .nav-link:hover {
+        background-color: #061B46;
+    }
+
+.navbar-dark {
+    background-color: #05173B;
+}
+
+.navbar-brand img {
+    max-height: 150px;
+    width: auto;
+
+    margin-top: -15px;
+    padding-top: 15px;
+    padding-left:10px;
+}
+
+.navbar-brand {
+    display: flex;
+    justify-content: center;
+    flex-grow: 1
+}
+
+    .navbar-brand img {
+        height: 60px;
+    }
+
+.nav-link i {
+    margin-right: 10px;
+    vertical-align: middle;
+    font-size: 1.5rem;
+}

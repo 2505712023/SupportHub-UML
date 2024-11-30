@@ -1,0 +1,231 @@
+﻿/* Estilos existentes */
+body {
+    padding-top: 56px;
+}
+
+table {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.contenedor-tabla {
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.table th, .table td {
+    width: auto; /* Deja que las columnas se ajusten al contenido */
+    padding: 10px;
+}
+
+.content-wrapper {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 1650px; /* Incrementado de 1400px a 1600px */
+    width: 120%;
+    margin: 20px auto; /* Puedes ajustar el margen para dar más espacio alrededor */
+}
+
+h1 {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 40px;
+    color: #333;
+}
+
+.search-bar input {
+    border-radius: 20px;
+    border: none;
+    padding: 8px 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+    .search-bar input:focus {
+        outline: none;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+.search-bar button {
+    border-radius: 20px;
+    padding: 8px 20px;
+    border: 2px solid #007BFF;
+    background-color: transparent;
+    color: #007BFF;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+    .search-bar button:hover {
+        background-color: #007BFF;
+        color: white;
+    }
+
+    .search-bar button i {
+        margin-right: 5px;
+    }
+
+.btn-add {
+    background-color: #007BFF;
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-add:hover {
+        background-color: #0056b3;
+        color: white;
+    }
+
+.table th {
+    background-color: #05173B;
+    color: white;
+    font-weight: bold;
+}
+
+.table th, .table td {
+    padding: 15px;
+}
+
+.btn-edit, .btn-delete, .btn-warning {
+    border: none;
+    border-radius: 50px;
+    padding: 5px 10px;
+    transition: all 0.3s;
+    font-size: 14px;
+    color: white;
+    width: 115px;
+    margin-bottom: 5px;
+}
+
+.btn-edit {
+    background-color: #37A668;
+}
+
+    .btn-edit:hover {
+        background-color: #2f8e56;
+    }
+
+.btn-delete {
+    background-color: #DC3545;
+}
+
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+
+.btn-warning {
+    background-color: rgb(77, 77, 77);
+}
+
+    .btn-warning:hover {
+        background-color: rgb(57, 57, 57);
+    }
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .btn-add {
+        width: 100%;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap; /* Evita que las celdas se rompan en varias líneas */
+    }
+}
+
+#Eliminar p {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.select-filtro {
+    border-radius: 50px !important;
+    height: 45px !important;
+    max-width: 195px !important;
+    border: 2px solid;
+    border-color: #007BFF;
+    color: #007BFF;
+}
+
+    .select-filtro:hover {
+        background-color: #007BFF;
+        transition: background-color 0.5s ease;
+        color: white;
+    }
+
+.modal-entregas {
+    width: auto;
+}
+
+#btn-limpiar-filtro {
+    width: 60px;
+    height: 40px;
+    display: none;
+    padding: 0px;
+    margin: 0px;
+    margin-right: 7px;
+    border-radius: 50%;
+}
+
+    #btn-limpiar-filtro i {
+        padding: 0px;
+        margin: 0px
+    }
+
+.actions {
+    white-space: nowrap; /* Evita que los botones se rompan en líneas separadas */
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+}
+
+.page-item {
+    margin: 0 5px;
+}
+
+.page-dot {
+    width: 20px; /* Tamaño aumentado */
+    height: 20px; /* Tamaño aumentado */
+    border-radius: 50%;
+    background-color: transparent; /* Fondo transparente */
+    border: 2px solid #007bff; /* Color del borde */
+    display: inline-block;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+    .page-dot.active {
+        background-color: #05173B; /* Color cuando está activo */
+    }
+
+    .page-dot:hover {
+        background-color: rgba(0, 123, 255, 0.2); /* Efecto hover más ligero */
+    }
+
+.modal label {
+    font-weight: bold;
+    margin-bottom: 2px;
+}

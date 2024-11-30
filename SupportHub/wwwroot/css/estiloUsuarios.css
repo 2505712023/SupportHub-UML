@@ -1,0 +1,122 @@
+﻿body {
+    padding-top: 56px;
+}
+
+table {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.contenedor-tabla {
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.table th, .table td {
+    width: auto; /* Deja que las columnas se ajusten al contenido */
+    padding: 10px;
+}
+
+.content-wrapper {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 1450px; /* Incrementado de 1400px a 1600px */
+    width: 120%;
+    margin: 60px auto; /* Puedes ajustar el margen para dar más espacio alrededor */
+}
+
+.actions {
+    white-space: nowrap; /* Evita que los botones se rompan en líneas separadas */
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .btn-add {
+        width: 100%;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap; /* Evita que las celdas se rompan en varias líneas */
+    }
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+}
+
+.page-item {
+    margin: 0 5px;
+}
+
+.page-dot {
+    width: 20px; /* Tamaño aumentado */
+    height: 20px; /* Tamaño aumentado */
+    border-radius: 50%;
+    background-color: transparent; /* Fondo transparente */
+    border: 2px solid #007bff; /* Color del borde */
+    display: inline-block;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+    .page-dot.active {
+        background-color: #05173B; /* Color cuando está activo */
+    }
+
+    .page-dot:hover {
+        background-color: rgba(0, 123, 255, 0.2); /* Efecto hover más ligero */
+    }
+
+
+/* estilos param las sugerencias de empleados en Usuarios */
+
+.suggestions {
+    width: 450px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    max-height: 500px;
+    overflow-y: auto; /* Agrega un desplazamiento vertical si el contenido excede la altura máxima */
+}
+
+.suggestion-item {
+    height: 25px;
+    color: black;
+    padding: 5px; /*Añade espacio interior alrededor del texto en cada sugerencia */
+    cursor: pointer; /* Cambia el cursor a un puntero cuando pasa sobre una sugerencia, indicando que es clickeable */
+}
+
+    .suggestion-item:hover {
+        background-color: #e9e9e9;
+    }
+
+#containerEmployes {
+    height: auto;
+}
+
+/*Estilos para el ojo de contraseña */
+.bi-eye, .bi-eye-slash {
+    position: absolute;
+    font-size: 30px;
+    right: 30px;
+    transform: translateY(-40px);
+    cursor: pointer;
+}

@@ -1,0 +1,14 @@
+﻿@page
+@model SupportHub.Pages.IndexModel
+@{
+    ViewData["Title"] = "Home page";
+    Layout = "_Layout"; // Asegúrate de que este es el diseño correcto para Index
+}
+<link rel="stylesheet" type="text/css" href="~/css/styleHora.css">
+
+<br />
+<div class="time-container">
+    <div id="clock"></div>
+    <div id="date">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</div>
+</div>
+<script src="/js/script.js"></script>

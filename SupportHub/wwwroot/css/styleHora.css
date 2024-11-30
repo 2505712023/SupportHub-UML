@@ -1,0 +1,19 @@
+﻿.time-container {
+    text-align: center;
+    color: #333;
+    font-family: 'Arial', sans-serif;
+    margin-top: 50px;
+}
+
+#clock {
+    font-size: 5vw; /* Escalar la fuente basado en el ancho de la ventana */
+    font-weight: bold;
+}
+
+#date {
+    font-size: 2vw; /* Escalar el tamaño de la fecha también */
+    margin-top: 20px;
+    color: #666;
+}
+
+

@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SupportHub</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SupportHub.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" type="text/css" href="~/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    <!-- Barra superior fija -->
+    <nav class="navbar navbar-dark fixed-top">
+        <div class="container-fluid">            
+            <!-- Menú hamburguesa a la izquierda -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Logo en lugar del texto SupportHub -->
+            <a class="navbar-brand" href="/Index">
+                <img src="/imagenes/logoSupportHub1.png" alt="SupportHub Logo" style="cursor: pointer;">
+            </a>
+
+            
+
+            <div class="ms-auto d-flex align-items-center">
+
+                <span class="me-2 text-light">
+                    Bienvenido, @User.Identity.Name
+                </span>
+
+                <a href="#" id="toggle-theme" class="btn btn-outline-light ms-2">
+                    <i class="fas fa-moon"></i>
+                </a>
+
+                <a href="/Welcome/Logout" class="btn btn-outline-light">Salir</a>
+            </div>
+            
+        </div>
+    </nav>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Menú lateral con offcanvas -->
+    <div class="offcanvas offcanvas-start text-white" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header">
+            <a class="navbar-brand" href="/Index">
+                <img src="/imagenes/logoSupportHub1.png" alt="SupportHub Logo" style="cursor: pointer;">
+            </a>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <ul class="navbar-nav">
+                @if (User.IsInRole("Administrador"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Empleado/mostrarEmpleados">
+                        <i class="fas fa-user-tie"></i> Empleado
+                        </a>
+                    </li>
+                }
+                @if (!User.IsInRole("Usuario"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Entregas/mostrarEntregas">
+                            <i class="fas fa-box-open"></i> Entregas
+                        </a>
+                    </li>
+                }
+                @if (!User.IsInRole("Usuario"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Proveedor/mostrarProveedor">
+                            <i class="fas fa-truck"></i> Proveedores
+                        </a>
+                    </li>
+                }
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-page="/Ticket/mostrarTickets">
+                        <i class="fas fa-headset"></i>Tickets
+                    </a>
+                </li>
+                @if (!User.IsInRole("Usuario"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Equipo/mostrarEquipos">
+                            <i class="fas fa-desktop"></i> Equipos
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Administrador"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Usuario/mostrarUsuarios">
+                            <i class="fas fa-users-cog"></i> Usuarios
+                        </a>
+                    </li>
+                }
+            </ul>
+            
+        </div>
+        <!--enlace a mi_informacion-->
+        <div class="offcanvas-footer mt-auto align-self-start" style="margin-left: -20px; width: 100%">
+            <ul>
+                <li class="nav-item" style="padding: 1px;">
+                    <a href="/Usuario/mi_informacion" class="nav-link" title="Información"><i class="bi bi-info-circle"></i>Información</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container-fluid mt-2 hora">
+        <main role="main" class="pb-3">
+            @RenderBody()
+            
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - SupportHub - <a asp-area="" asp-page="/About">Sobre nosostros</a> <a asp-area="" asp-page="/Contacto">Contáctanos</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/scriptPantalla.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

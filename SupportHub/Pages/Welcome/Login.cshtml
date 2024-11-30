@@ -1,0 +1,262 @@
+﻿@page
+@model SupportHub.Pages.Welcome.LoginModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_LayoutWelcome";
+}
+<script src="https://kit.fontawesome.com/52428cdec5.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="/css/stylesLogin.css">
+
+<section>
+    <div class="info-contenedor">
+        <div class="card">
+            <figure>
+                <img src="/imagenes/inventario.png" />
+            </figure>
+            <div class="contenido">
+                <h3>Inventario</h3>
+                <p>
+                    Accede a un registro detallado de todos los activos tecnológicos de la organización. Monitorea el estado, disponibilidad y ubicación de cada equipo asignado.
+                </p>
+                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#inventarioModal">
+                    Leer más
+                </button>
+            </div>
+        </div>
+        <div class="card">
+            <figure>
+                <img src="/imagenes/entrega.png" />
+            </figure>
+            <div class="contenido">
+                <h3>Entregas </h3>
+
+                <p>
+                    Gestiona el flujo de entregas de equipos a los empleados. Consulta el historial y controla la asignación de dispositivos para asegurar una distribución eficiente.
+                </p>
+                <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#entregasModal">Leer más</button>
+            </div>
+        </div>
+        <div class="card" style="margin-top: 10px; margin-right: 15px; margin-bottom: 10px; margin-left: 15px;">
+            <figure>
+                <img src="/imagenes/ticket.png" />
+            </figure>
+            <div class="contenido">
+                <h3>Tickets</h3>
+                <p>
+                    Administra solicitudes de soporte y mantenimiento de activos tecnológicos. Da seguimiento a incidentes y garantiza una rápida resolución para mantener la continuidad operativa.
+                </p>
+                <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#ticketsModal">Leer más</button>
+            </div>
+        </div>
+    </div>
+  
+
+
+    <div class="contenedor">
+        <div class="login-box">
+            <h2>Iniciar sesión</h2>
+            <form method="post">
+                <div class="input-box">
+                    <i class="fa-solid fa-users"></i>
+                    <input type="text" id="username" name="username" required />
+                    <label for="username">Username </label>
+                </div>
+                <div class="input-box">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" name="password" required />
+                    <label for="#">Password </label>
+                </div>
+
+                <button type="submit" class="button">
+                    Login
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd"
+                              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm4.28 10.28a.75.75 0 000-1.06l-3-3a.75.75 0 10-1.06 1.06l1.72 1.72H8.25a.75.75 0 000 1.5h5.69l-1.72 1.72a.75.75 0 101.06 1.06l3-3z"
+                              clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+
+            </form>
+        </div>
+        <span style="--i:0;"></span>
+        <span style="--i:1;"></span>
+        <span style="--i:2;"></span>
+        <span style="--i:3;"></span>
+        <span style="--i:4;"></span>
+        <span style="--i:5;"></span>
+        <span style="--i:6;"></span>
+        <span style="--i:7;"></span>
+        <span style="--i:8;"></span>
+        <span style="--i:9;"></span>
+        <span style="--i:10;"></span>
+        <span style="--i:11;"></span>
+        <span style="--i:12;"></span>
+        <span style="--i:13;"></span>
+        <span style="--i:14;"></span>
+        <span style="--i:15;"></span>
+        <span style="--i:16;"></span>
+        <span style="--i:17;"></span>
+        <span style="--i:18;"></span>
+        <span style="--i:19;"></span>
+        <span style="--i:20;"></span>
+        <span style="--i:21;"></span>
+        <span style="--i:22;"></span>
+        <span style="--i:23;"></span>
+        <span style="--i:24;"></span>
+        <span style="--i:25;"></span>
+        <span style="--i:26;"></span>
+        <span style="--i:27;"></span>
+        <span style="--i:28;"></span>
+        <span style="--i:29;"></span>
+        <span style="--i:30;"></span>
+        <span style="--i:31;"></span>
+        <span style="--i:32;"></span>
+        <span style="--i:33;"></span>
+        <span style="--i:34;"></span>
+        <span style="--i:35;"></span>
+        <span style="--i:36;"></span>
+        <span style="--i:37;"></span>
+        <span style="--i:38;"></span>
+        <span style="--i:39;"></span>
+        <span style="--i:40;"></span>
+        <span style="--i:41;"></span>
+        <span style="--i:42;"></span>
+        <span style="--i:43;"></span>
+        <span style="--i:44;"></span>
+        <span style="--i:45;"></span>
+        <span style="--i:46;"></span>
+        <span style="--i:47;"></span>
+        <span style="--i:48;"></span>
+        <span style="--i:49;"></span>
+    </div>
+</section>
+
+@if (Model.ErrorMessage != null)
+{
+    <script>
+        Swal.fire({
+            title: "Oops...",
+            text: "@Html.Raw(Model.ErrorMessage)",  // 
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    </script>
+}
+
+<!-- Modal 1 -->
+<div class="modal fade" id="inventarioModal" tabindex="-1" aria-labelledby="inventarioModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" >
+            <div class="modal-header" style=" background-color: #05173B; color: white;">
+                <h1 class="modal-title fs-5" id="inventarioModalLabel">Inventario</h1>
+            
+
+            </div>
+            <div class="modal-body">
+                <p>La sección de Inventario permite gestionar todos los activos tecnológicos de la organización de forma centralizada. Aquí se registra cada dispositivo, desde 
+                    computadoras y teléfonos hasta impresoras y software especializado, incluyendo datos sobre el estado, ubicación y asignación a empleados.
+                    Esta herramienta facilita el monitoreo y control de los equipos, apoyando una planificación efectiva y asegurando la disponibilidad óptima de los recursos para el personal.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2 -->
+<div class="modal fade" id="entregasModal" tabindex="-1" aria-labelledby="entregasModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style=" background-color: #05173B; color: white;">
+                <h1 class="modal-title fs-5" id="entregasModalLabel">Entregas</h1>
+
+            </div>
+            <div class="modal-body">
+                <p>La sección de Entregas está diseñada para coordinar la asignación y seguimiento de dispositivos y equipos a los empleados. Cada entrega queda registrada, 
+                    lo cual permite saber quién tiene qué equipo y en qué condiciones fue recibido. Esto facilita la gestión del ciclo de vida de cada activo y asegura que 
+                    los dispositivos estén disponibles para quienes los necesiten, mejorando la eficiencia y evitando pérdidas de equipos.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3 -->
+<div class="modal fade" id="ticketsModal" tabindex="-1" aria-labelledby="ticketsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style=" background-color: #05173B; color: white;">
+                <h1 class="modal-title fs-5" id="ticketsModalLabel">Tickets</h1>
+             
+
+            </div>
+            <div class="modal-body">
+                <p>La sección de Tickets es el módulo de soporte y resolución de incidentes. Aquí se registran todas las solicitudes de asistencia relacionadas con los activos tecnológicos,
+                    permitiendo priorizar y asignar recursos de manera rápida y efectiva. Los empleados pueden reportar problemas con sus dispositivos, 
+                    y el equipo de soporte puede dar seguimiento a cada caso para garantizar la resolución rápida de problemas, minimizando tiempos de inactividad y manteniendo la continuidad operativa.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    @{
+        var errorMessage = ViewData["ErrorMessage"] as string;
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <text>
+            Swal.fire({
+                title: "Oops...",
+                text: @Html.Raw($"\"{errorMessage}\""),
+                icon: "error",
+                confirmButtonText: "OK"
+            });
+        </text>
+    }
+    @if (TempData["exito"] != null && (bool)TempData["exito"])
+    {
+        <text>
+            Swal.fire({
+                title: "¡Excelente!",
+                text: "Modificación exitosa. Vuelve a iniciar sesión con tus nuevas credenciales",
+                icon: "success",
+                confirmButtonText: "OK"
+            });
+        </text>
+        
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/js/intlTelInput.min.js"></script>
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        // Función para manejar el cierre de todos los modales
+        function closeModal(modalId) {
+            var modalElement = document.getElementById(modalId);
+            var modal = new bootstrap.Modal(modalElement);
+            modal.hide();  // Cerrar el modal
+        }
+
+        // Añadir evento para cerrar cada modal cuando se haga clic en el botón de cierre (btn-close)
+        document.querySelectorAll('.btn-close').forEach(function (button) {
+            button.addEventListener('click', function () {
+                var modal = bootstrap.Modal.getInstance(button.closest('.modal'));
+                modal.hide(); // Cerrar el modal
+            });
+        });
+
+        // Cerrar el modal al hacer clic en el botón "Cerrar" en el pie del modal
+        document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                var modalId = button.closest('.modal').id;
+                closeModal(modalId); // Cerrar el modal específico
+            });
+        });
+    });
+
+</script>

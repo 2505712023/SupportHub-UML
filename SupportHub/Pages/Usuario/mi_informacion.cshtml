@@ -1,0 +1,275 @@
+﻿@page
+@model SupportHub.Pages.Usuario.mi_informacionModel
+@{
+	ViewData["Title"] = "Mi información";
+	Layout = "_Layout";
+}
+<link rel="stylesheet" href="~/css/estiloPantallas.css">
+
+<div class="container">
+    <br />
+	<h1>MI INFORMACIÓN</h1> 
+    <br />
+	<table>
+	<thead>
+		<tr>
+			<th>ID</th>
+		     <th>USUARIO</th>
+			 <th>NOMBRE</th>
+			 <th>APELLIDO</th>
+			 <th>ROL</th>
+			 <th>ACCIONES</th>
+		</tr>
+	</thead>
+	<tbody>
+			@foreach (var i in Model.Usuario)
+			{
+                <tr  data-usuario="@i.LoginUsuario" data-id="@i.IDUsuario" data-nombre="@i.NombreUsuario" data-apellido="@i.ApellidoUsuario" data-modificarusuario="true">
+					<td>
+						<label>@i.IDUsuario</label>
+					</td>
+					<td>
+						<label>@i.LoginUsuario</label>
+					</td>
+					<td>
+						<label>@i.NombreUsuario</label>
+					</td>
+					<td>
+						<label>@i.ApellidoUsuario</label>
+					</td>
+                    <td>
+                        <label>@i.RolUsuario</label>
+                    </td>
+					<td>
+                        <button onclick="ModalModificarContraseña(this)" type="button" class="btn btn-edit btnClave" data-bs-toggle="modal" data-bs-target="#Modificar"><span class="texto-clave">Modificar</span></button>
+					</td>
+				</tr>
+			}
+		</tbody>
+</table>
+<br />
+
+    @if (User.IsInRole("Administrador"))
+    {           
+        <h1>Email</h1>
+	    <br />
+	    <table class="email">
+		    <thead>
+			    <tr>
+				    <th>Correo</th>
+				    <th></th>
+				    <th>Asunto</th>
+                    <th class="text-truncate">Cuerpo</th>
+				    <th>Host</th>
+				    <th>Puerto</th>
+				    <th>VerificarSSL</th>
+				    <th>ACCIONES</th>
+			    </tr>
+		    </thead>
+		    <tbody>
+			    @foreach (var i in Model.enviosCorreo)
+			    {
+				    <tr data-correo="@i.Correo" data-asunto="@i.Asunto" data-Cuerpo="@i.Cuerpo" data-Host="@i.Host" data-puerto="@i.Puerto" data-contra="@i.Contraseña" data-ssl="@i.SslActivo">
+					    <td>
+						    <label>@i.Correo</label>
+					    </td>
+					    <td>
+
+					    </td>
+					    <td>
+                            <label style="max-width: 100% ;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">@i.Asunto</label>
+					    </td>
+					    <td>
+                            <label style="max-width: 100% ;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">@i.Cuerpo</label>
+					    </td>
+					    <td>
+						    <label>@i.Host</label>
+					    </td>
+					    <td>
+						    <label>@i.Puerto</label>
+					    </td>
+					    <td>
+						    <label>@(i.SslActivo ? "Activado" : "Desactivado")</label>
+					    </td>
+					    <td>
+                            <button onclick="ModificarEmail(this)" type="button" class="btn btn-edit btnClave" data-bs-toggle="modal" data-bs-target="#ModificareEmail"><span class="texto-clave">Modificar</span></button>
+					    </td>
+				    </tr>
+			    }
+		    </tbody>
+	    </table>
+    }
+</div>
+
+    <!-- Modal para editar usuario -->
+    <div class="modal fade" id="Modificar" tabindex="-1" aria-labelledby="Modificar" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header encabezado-personalizado">
+                    <h1 class="modal-title fs-5" id="Modificar">Modificar Usuario</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalMUsuario()" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="ModificarinfoUsuario">
+                        <!-- Campo de ID -->
+                        <input type="hidden" id="id" name="id" />
+                      
+                        <!-- Campo de usuario -->
+                        <div class="mb-3">
+                            <label for="usuario">Usuario:</label>
+                        <input type="text" required class="form-control" id="usuario" name="usuario">
+                        </div>
+
+                         <!-- Campo de contraseña actual -->
+                        <div class="mb-3">
+                        <label for="contraA">Contraseña actual:</label>
+                        <input type="password" required class="form-control" id="contraA" name="contraA">
+                        </div>
+
+                        <!-- Campo de Nueva contra -->
+                        <div class="mb-3">
+                        <label for="nContra">Nueva Contraseña:</label>
+                        <input type="password" required class="form-control" id="nContra" name="nContra">
+                        <i id="ojo1" class="bi bi-eye-slash"></i>
+                        </div>
+
+                    <!-- Campo de confirmar Nueva contra -->
+                    <div class="mb-3">
+                        <label for="CnContra">Confirmar Contraseña:</label>
+                        <input type="password" required class="form-control" id="CnContra" name="CnContra">
+                        <i id="ojo2" class="bi bi-eye-slash"></i>
+                    </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                <button id="btnCancelar" type="button" class="btn btn-secondary" onclick="limpiarModalMUsuario()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="validarIformacionUsuario()">Modificar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal para editar eMAIL -->
+<div class="modal fade" id="ModificareEmail" tabindex="-1" aria-labelledby="ModificareEmail" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="ModificareEmail">Modificar Datos Email</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalMUsuario()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="ModificarDatoMail">
+                    <input type="hidden" id="esModificacionDeCorreo" value="false" name="esModificacionDeCorreo" />
+                    <!-- Campo de correo -->
+                    <div class="mb-3">
+                        <label for="correo">Correo:</label>
+                        <input type="text" required class="form-control" id="correo" name="correo">
+                    </div>
+
+                    <!-- Campo de asunto actual -->
+                    <div class="mb-3">
+                        <label for="asuto">Asunto actual:</label>
+                        <input type="text" required class="form-control" id="asunto" name="asunto">
+                    </div>
+
+                    <!-- Campo de cuerpo de correo -->
+                    <div class="mb-3">
+                        <label for="cuerpo">Cuerpo del correo:</label>
+                        <textarea type="text" required class="form-control" id="cuerpo" name="cuerpo"></textarea>
+                    </div>
+
+                    <!-- Campo de Host -->
+                    <div class="mb-3">
+                        <label for="host">Host:</label>
+                        <input type="text" required class="form-control" id="host" name="host">
+                    </div>
+                    <!-- Campo de puerto -->
+                    <div class="mb-3">
+                        <label for="puerto">Puerto:</label>
+                        <input type="text" required class="form-control" id="puerto" name="puerto">
+                    </div>
+                    <!-- Campo de contraseña -->
+                    <div class="mb-3">
+                        <label for="contra">Contraseña:</label>
+                        <input type="text" required class="form-control" id="contra" name="contra">
+                    </div>
+                    <!-- Campo de ssl -->
+                    <div class="mb-3">
+                        <label for="ssl">SSL:</label>
+@*                         <input type="text" required class="form-control" id="ssl" name="ssl">
+ *@                     <select class="form-control" id="ssl" name="ssl">
+                            <option value="True">Activado</option>
+                            <option value="False">Desactivado</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelar" type="button" class="btn btn-secondary" onclick="limpiarModalMUsuario()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="ValidarInfoCorreo()">Modificar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+ <script>sessionStorage.setItem("contra", '@HttpContext.Session.GetString("contra")');</script>
+ <script src="~/js/MiInformacion.js"></script>
+
+     <script type="text/javascript">
+        @if (TempData["exito2"] != null && (bool)TempData["exito2"])
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                text: "Has modificado exitosamente los datos del correo.",
+                icon: "success",
+                confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script>sessionStorage.setItem("contra", '@HttpContext.Session.GetString("contra")');</script>
+
+    <script type="text/javascript">
+        @{
+            var errorSQL = ViewData["ErrorSQL"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorSQL))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorSQL}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirigir a la página Index
+                        window.location.href = '../Index';
+                    }
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorMessage = TempData["ErrorMessage"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorMessage}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+}

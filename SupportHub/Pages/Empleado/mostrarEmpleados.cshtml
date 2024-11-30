@@ -1,0 +1,293 @@
+﻿@page
+@model SupportHub.Pages.Empleado.mostrarEmpleadosModel
+@{
+    ViewData["Title"] = "Empleados";
+    Layout = "_Layout";
+}
+<br />
+
+<link rel="stylesheet" href="~/css/estiloEmpleados.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.css" />
+<div class="content-wrapper" style="max-width: 1550px; border-radius: 20px;">
+    <h1>Gestión de Empleados</h1>
+
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <form method="get">
+                <div class="search-bar d-flex">
+                    <input type="text" maxlength="100" name="searchQuery" class="form-control me-2" placeholder="Buscar por código, Nombre o Apellido de empleado."
+                           value="@Request.Query["searchQuery"]" oninput="checkSearch(this)" />
+                    <button type="submit" class="btn"><i class="fas fa-search"></i>Buscar</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4 text-end">
+            <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#AgregarModificar">
+                <i class="fas fa-plus-circle"></i> Agregar Empleado
+            </button>
+        </div>
+    </div>
+
+    <div class="contenedor-tabla">
+        <table class="table table-hover align-middle text-center" style="max-width: 1600px; width: 100%;" id="empleadosTable">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Cod Área</th>
+                    <th>Área</th>
+                    <th>Cod Cargo</th>
+                    <th>Cargo</th>
+                    @if(User.IsInRole("Administrador"))
+                    {
+                        <th>Acciones</th>
+                    }
+                </tr>
+            </thead>
+            <tbody id="empleadosBody">
+                @foreach (var item in Model.listaEmpleado)
+                {
+                    <tr data-codigo="@item.codEmpleado" 
+                        data-nombre="@item.nombreEmpleado" 
+                        data-apellido="@item.apellidoEmpleado"
+                        data-telefono="@item.telefonoEmpleado"
+                        data-email="@item.emailEmpleado" 
+                        data-IdArea="@item.IdArea"
+                        data-IdCargo="@item.IdCargo" 
+                        data-id="@item.idEmpleado">
+
+                        <td align="left">@item.codEmpleado</td>
+                        <td align="left">@item.nombreEmpleado</td>
+                        <td align="left">@item.apellidoEmpleado</td>
+                        <td align="left">@item.telefonoEmpleado</td>
+                        <td align="left">@item.emailEmpleado</td>
+                        <td align="left">@item.codArea</td>
+                        <td align="left">@item.nombreArea</td>
+                        <td align="left">@item.codCargo</td>
+                        <td align="left">@item.nombreCargo</td>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <td class="actions">
+                                <button class="btn btn-edit" onclick="llenarModal(this)" data-bs-toggle="modal" data-bs-target="#AgregarModificar">
+                                    <i class="fas fa-pen"></i> Modificar
+                                </button>
+                                <button class="btn btn-delete" onclick="llenarModalEliminar(this)" data-bs-toggle="modal" data-bs-target="#Eliminar">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    <div id="pagination" class="pagination">
+        <ul class="pagination-list"></ul>
+    </div>
+</div>
+
+<!-- Modal para agregar un nuevo empleado -->
+<div class="modal fade" id="AgregarModificar" tabindex="-1" aria-labelledby="AgregarModificar" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="AgregarModificar">Agregar Empleado</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalEmpleado()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-page-handler="GuardarEmpleado" id="formAgregarEmpleado">
+                    <!-- Campo de ID -->
+                    <input type="hidden" id="codigo" name="codigo" value="" />
+
+                    <!-- Campo de EsModificacion -->
+                    <input type="hidden" id="esModificacion" name="esModificacion" value="false" />
+
+                    <!-- Campo de Nombre -->
+                    <div class="mb-3">
+                        <label for="nombre">Nombre Empleado:</label>
+                        <input type="text" maxlength="50" required class="form-control" id="nombre" name="nombre">
+                    </div>
+
+                    <!-- Campo de apellido -->
+                    <div class="mb-3">
+                        <label for="apellido">Apellido:</label><br />
+                        <input type="text" maxlength="50" required class="form-control" id="apellido" name="apellido">
+                    </div>
+
+                    <!-- Campo de Teléfono -->
+                    <div class="mb-3">
+                        <label for="telefono">Teléfono:</label><br />
+                        <input type="text" maxlength="14"  required class="form-control" id="telefono" name="telefono">
+                    </div>
+
+                    <!-- Campo de Correo -->
+                    <div class="mb-3">
+                        <label for="direccion">Email:</label>
+                        <input type="email" maxlength="100" required class="form-control" id="email" name="email">
+                    </div>
+
+                    <!-- Campo de Area -->
+                    <div class="mb-3">
+                        <label for="area">Nombre Área:</label>
+                        <div class="col-sm-6">
+                            <select class="form-select" id="IdArea" name="IdArea" asp-items="Model.Area">
+                                <option value="">-- Seleccione --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cargo">Nombre Cargo:</label>
+                        <div class="col-sm-6">
+                            <select class="form-select" id="IdCargo" name="IdCargo" asp-items="Model.Cargo">
+                                <option value="">-- Seleccione --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarModalEmpleado()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="validarFormularioEmpleado()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar un empleado -->
+<div class="modal fade" id="Eliminar" tabindex="-1" aria-labelledby="Eliminar" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="AgregarModificar">Eliminar Empleado</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalEliminar()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Seguro que desea eliminar un empleado?</p>
+                <form method="post" id="formEliminarEmpleado">
+                    <input type="hidden" name="codigo" id="codigo" value="" />
+                    <input type="hidden" name="esEliminacion" id="esEliminacion" value="" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarModalEliminar()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="validarFormularioEliminar()" id="btnEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="~/js/scriptEmpleados.js"></script>
+
+    <script type="text/javascript">
+        // Verifica si la operación fue exitosa
+        //validar que exito no sea nulo y que sea true, también que no se haya eliminado a nadie
+        // para que no se confunda y no muestre el alert de Eliminado correctamente
+        @if (TempData["exito"] != null && (bool)TempData["exito"] && TempData["eliminado"] != null && (bool)TempData["eliminado"] == false)
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                    text: "El empleado se ha guardado exitoamente.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            </text>
+            Model.exito = false;
+        }
+    </script>
+
+    <script type="text/javascript">
+            // Verifica si la operación fue exitosa
+            //validar que exito no sea nulo y que sea falso, también que intentoRealizado no sea nulo y que sea verdadero
+        @if (TempData["exito"] != null && (bool)TempData["exito"] == false && TempData["intentoRealizado"] != null && (bool)TempData["intentoRealizado"])
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: "Hubo un error al guardar el registro, valide que el código o el nombre del empleado no exista.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+            // Verifica si la operación fue exitosa
+            //validar que exito no sea nulo y que sea true, también que eliminado no sea nulo y que sea verdadero
+        @if (TempData["exito"] != null && (bool)TempData["exito"] == true && TempData["eliminado"] != null && (bool)TempData["eliminado"])
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                    text: "El empleado se ha eliminado exitosamente.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorMessage = ViewData["ErrorMessage"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorMessage}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirigir a la página Index
+                        window.location.href = '../Index';
+                    }
+                });
+            </text>
+        }
+    </script>
+
+    <!--Script de intl-tel-input-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/js/intlTelInput.min.js"></script>
+
+    <script type="text/javascript">
+                 var iti;
+
+        // Ejecuta el código solo cuando el DOM esté completamente cargado
+        document.addEventListener("DOMContentLoaded", function () {
+            // Selecciona el input de teléfono
+            var input = document.querySelector("#telefono");
+            iti = window.intlTelInput(input, {
+                onlyCountries: ["sv", "us", "cn", "jp", "de", "kr", "il", "in", "sg", "nl", "se", "ch", "fi", "cr", "pa", "es", "mx"],  // Lista de países exportadores de tecnología
+                preferredCountries: ["sv", "us", "cn", "jp", "de", "kr"], // Lista de países que se mostrarán a la cabecera siempre
+                separateDialCode: true,  // Muestra el código del país por separado
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/js/utils.js",  // Script adicional para funciones de validación y formato
+            });
+
+            //este evento es para darle formato al número de teléfono cuando el input pierda el foco
+            input.addEventListener("blur", function () {
+                getFormattedNumber();
+            });
+        });
+
+        //Función para obtener el número formateado
+        function getFormattedNumber() {
+            if (iti) {
+                var numeroFormateado = iti.getNumber(); // Obtiene el número en formato internacional
+                document.querySelector("#telefono").value = numeroFormateado; // Asigna el número formateado al input de teléfono
+            }
+        }
+    </script>
+}

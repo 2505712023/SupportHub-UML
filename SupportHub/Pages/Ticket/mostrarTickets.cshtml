@@ -1,0 +1,406 @@
+﻿@page
+@model SupportHub.Pages.Ticket.mostrarTicketsModel
+@{
+    ViewData["Title"] = "Tickets";
+    Layout = "_Layout";
+}
+<br />
+
+<link rel="stylesheet" href="~/css/estiloTickets.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.css" />
+<div class="content-wrapper" style="max-width: 1750px; border-radius: 20px;">
+    <h1>Gestión de Tickets</h1>
+
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header encabezado-ticket">
+                    <h5 class="modal-title" id="imageModalLabel">Imagen de Ticket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <!-- Aquí se cargará dinámicamente la imagen grande -->
+                    <img id="modalImage" src="" alt="Imagen en grande" class="img-fluid" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center mb-3">
+            @if (!User.IsInRole("Técnico") && !User.IsInRole("Usuario"))
+            {
+                <!-- Search Bar -->
+                <div class="col-md-8 col-lg-7">
+                    <form method="get" class="d-flex">
+                        <input type="text" name="searchQuery" class="form-control me-1 barra-busqueda" placeholder="Buscar por número de ticket, título, nombre usuario ó IT ..."
+                        value="@Request.Query["searchQuery"]" oninput="checkSearch(this)" />
+                        <button type="submit" class="btn btn-outline-primary btn-busqueda"><i class="fas fa-search"></i> Buscar</button>
+                    </form>
+                </div>
+            }
+            @if (!User.IsInRole("Común") && !User.IsInRole("Técnico"))
+            {
+                <!-- Create Ticket Button -->
+                <div class="col-md-2 text-end ms-auto">
+                    <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#modalTickets" onclick="openModal('agregar') ">
+                        <i class="fas fa-plus-circle"></i> Crear Ticket
+                    </button>
+                </div>
+            }
+        
+
+        <!-- Status Filters -->
+        <div class="col-12 d-flex flex-column flex-md-row align-items-center filtro-estados mt-3">
+            <p class="mb-1 mb-md-0 me-2">Estado:</p>
+            <div class="d-grid gap-2" style="grid-template-columns: repeat(6, 1fr);">
+                <span id="filtroEstadoTodos" class="estado estado-todos">Cualquiera</span>
+                <span id="filtroEstadoAbierto" class="estado estado-abierto-off">Abierto</span>
+                <span id="filtroEstadoAsignado" class="estado estado-asignado-off">Asignado</span>
+                <span id="filtroEstadoEnProceso" class="estado estado-en-proceso-off">En Proceso</span>
+                <span id="filtroEstadoCerrado" class="estado estado-cerrado-off">Cerrado</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="contenedor-tabla">
+        <table class="table table-hover align-middle text-center" style="max-width: 1700px; width: 100%;" >
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Imagen</th>
+                    <th>Fecha Creación</th>
+                    <th>Fecha Finalización</th>
+                    <th>Usuario</th>
+                    <th>Estado</th>
+                    <th>Prioridad</th>
+                    <th>IT Responsable</th>
+                    @if (!User.IsInRole("Común"))
+                    {
+                        <th>Acciones</th>
+                    }
+                </tr>
+            </thead>
+            <tbody id="ticketsBody">
+                @foreach (var item in Model.listaTickets)
+                {
+                    <tr data-codigo="@item.codTicket" 
+                        data-titulo="@item.titulo" 
+                        data-descripcion="@item.descripcion" 
+                        data-imagen="@item.imagen"
+                        data-fechacreacion="@Convert.ToDateTime(item.fechaCreacion).ToString("yyyy-MM-dd")"
+                        data-fechaFinalizado="@(string.IsNullOrEmpty(item.fechaFinalizado) ? "" : DateTime.Parse(item.fechaFinalizado).ToString("yyyy-MM-dd"))"
+                        data-nombreEmpleado="@item.nombreEmpleado" 
+                        data-estado="@item.nombreEstado" 
+                        data-prioridad="@item.nombrePrioridad" 
+                        data-empleadoIT="@item.nombreEmpleadoIT" 
+                        data-id-ticket="@item.idTicket"
+                        data-id-estado="@item.idEstado"
+                        data-id-prioridad="@item.idPrioridad"
+                        data-id-empleado="@item.idEmpleado"
+                        data-id-empleado-it="@item.idEmpleadoIT">
+                        <td align="left">@item.codTicket</td>
+                        <td align="left">@item.titulo</td>
+                        <td align="left">@item.descripcion</td>
+
+                        <td>
+                            <!-- El texto o miniatura que abre el modal -->
+                            <a href="javascript:void(0);" class="ver-imagen" onclick="showImageInModal('data:image/png;base64,@item.imagen')" data-bs-placement="top" title="Ver Imagen">
+                                <i class="fa-regular fa-image"></i>
+                            </a>
+                        </td>
+
+                        <td align="left">@(string.IsNullOrEmpty(item.fechaCreacion) ? "" : Convert.ToDateTime(item.fechaCreacion).ToString("dd/MM/yyyy"))</td>
+                        <td align="left">@(string.IsNullOrEmpty(item.fechaFinalizado) ? "" : Convert.ToDateTime(item.fechaFinalizado).ToString("dd/MM/yyyy"))</td>
+                        <td align="left">@item.nombreEmpleado</td>
+                        <td align="center">
+                            @if (item.nombreEstado == "Abierto")
+                            {
+                                <span class="estado estado-abierto">@item.nombreEstado</span>
+                            }
+                            else if (item.nombreEstado == "Asignado")
+                            {
+                                <span class="estado estado-asignado">@item.nombreEstado</span>
+                            }
+                            else if (item.nombreEstado == "En Proceso")
+                            {
+                                <span class="estado estado-en-proceso">@item.nombreEstado</span>
+                            }
+                            else if (item.nombreEstado == "Cerrado")
+                            {
+                                <span class="estado estado-cerrado">@item.nombreEstado</span>
+                            }
+                        </td>
+                        <td align="left">
+                            @if (item.nombrePrioridad == "Alta")
+                            {
+                                <span class="prioridad prioridad-alta"><i class="fa-regular fa-circle-up"></i> @item.nombrePrioridad</span>
+                            }
+                            else if (item.nombrePrioridad == "Media")
+                            {
+                                <span class="prioridad prioridad-media"><i class="fa-regular fa-circle"></i> @item.nombrePrioridad</span>
+                            }
+                            else if (item.nombrePrioridad == "Baja")
+                            {
+                                <span class="prioridad prioridad-baja"><i class="fa-regular fa-circle-down"></i> @item.nombrePrioridad</span>
+                            }
+                        </td>
+                        <td align="left">
+                            @if (item.nombreEmpleadoIT == "")
+                            {
+                                <span style="font-weight: bold">Sin Asignar</span>
+                            }
+                            else
+                            {
+                                @item.nombreEmpleadoIT
+                            }
+                        </td>
+                        @if (!User.IsInRole("Común"))
+                        {
+                            <td class="actions">
+                                @if ((User.IsInRole("Administrador") || User.IsInRole("Usuario")) && item.nombreEstado != "Cerrado")
+                                {
+                                    <button class="btn btn-edit" onclick="openModal('modificar',this)" data-bs-toggle="modal" data-bs-target="#modalTickets" title="Modificar">
+                                        <i class="fas fa-pen"></i> Modificar
+                                    </button>
+                                }
+                                @if (string.IsNullOrEmpty(item.fechaFinalizado) && (User.IsInRole("Administrador") || User.IsInRole("Técnico")))
+                                {
+                                    <button class="btn btn-delete" onclick="openModal('cerrarTicket', this)" id="Cerrarticket" data-codticket="@item.codTicket" data-bs-toggle="modal" data-bs-target="#modalTickets">
+                                        <i class="fa-regular fa-circle-xmark"></i> Cerrar Ticket
+                                    </button>
+                                }
+                                else if (User.IsInRole("Administrador"))
+                                {
+                                    <button class="btn btn-delete" onclick="openModal('reabrirTicket', this)" id="Reabrirticket" data-codticket="@item.codTicket" data-bs-toggle="modal" data-bs-target="#modalTickets">
+                                        <i class="fa-solid fa-clock-rotate-left"></i> Reabrir Ticket
+                                    </button>
+                                }
+                                @if ((User.IsInRole("Administrador") || User.IsInRole("Técnico")) && item.nombreEstado != "Cerrado" && item.nombreEstado != "En Proceso" && item.nombreEmpleadoIT != "")
+                                {
+                                    <button style="margin-top: 4px; background-color: #d39800" class="btn btn-edit" onclick="openModal('comenzarTicket', this)" id="devolucion" data-codticket="@item.codTicket" data-bs-toggle="modal" data-bs-target="#modalTickets" data-bs-placement="top">
+                                        <i class="fa-solid fa-clock"></i> Comenzar
+                                    </button>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    <div id="pagination" class="pagination">
+        <ul class="pagination-list"></ul>
+    </div>
+</div>
+
+<!-- Modal para crear, modificar, confirmar eliminación, agregar devolución o eliminar devolución de entregas -->
+<div class="modal fade" id="modalTickets" tabindex="-1" aria-labelledby="modalTicketsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-tickets">
+        <div class="modal-content">
+            <div class="modal-header encabezado-personalizado">
+                <h1 class="modal-title fs-5" id="modalTitle">Crear Ticket</h1>
+                <button type="button" class="btn-close" onclick="limpiarModalTickets()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="formTickets" enctype="multipart/form-data">
+                <div class="modal-body" id="modalBody">
+                    <input type="hidden" id="idTicket" name="idTicket" value="" />
+                    <input type="hidden" id="accion" name="accion" value="" />
+@*                     <input type="hidden" name="codTicket" id="codTicket" value="" />
+ *@
+                    <h3 id="reAbrir">¿Seguro que desea reabrir ticket?</h3>
+                    <h3 id="comenzar">¿Seguro que va a comenzar este ticket?</h3>
+
+                    <label class="col-sm-12 col-form-label" for="formTituloTicket">Título:</label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" name="tituloTicket" id="formTituloTicket" />
+                    </div>
+
+                    <label class="col-sm-12 col-form-label" for="codTicket">Código:</label>
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" name="codTicket" id="codTicket" readOnly />
+                    </div>
+
+                    <label class="col-sm-12 col-form-label agregar-modificar" for="formDescripcionTicket">Descripción:</label>
+                    <div class="col-sm-12">
+                        <textarea class="form-control agregar-modificar" name="descripcionTicket" id="formDescripcionTicket" rows="5"></textarea>
+                    </div>
+
+                    <label class="col-sm-12 col-form-label agregar-modificar" for="formImagenTicket">Imagen:</label>
+                    <div class="col-sm-12 agregar-modificar">
+                        <input type="file" class="form-control" name="imagenTicket" id="formImagenTicket" accept="image/*" onchange="previewImage(event)">
+                        <img id="previewImagenTicket" src="" style="width: 100%; margin-top: 25px" />
+                        <input type="hidden" id="hiddenImagenBase64" name="imagenBase64" value="" />
+                    </div>
+
+                    <label class="col-sm-12 col-form-label" for="formfechaFinalizado">Fecha de finalizado Ticket</label>
+                    <div class="col-sm-12">
+                        <input type="date" class="form-control" name="fechaFinalizado" id="formfechaFinalizado" />
+                    </div>
+
+                    @if(User.IsInRole("Administrador")){
+                        <label class="col-sm-12 col-form-label agregar-modificar" for="formIdEstado">Estado:</label>
+                        <select class="form-select agregar-modificar" name="idEstado" id="formIdEstado">
+                            @if (User.IsInRole("Administrador")) { 
+                                <option disabled selected value="0">-- Seleccione un Estado --</option>
+                                @foreach (var estado in Model.Estado)
+                                {
+                                    <option value="@estado.idEstado">@estado.nombreEstado</option>
+                                }
+                            }
+                        </select> 
+                    }
+                    
+                    <label class="col-sm-12 col-form-label agregar-modificar" for="formIdPrioridad">Prioridad:</label>
+                    <div class="col-sm-12 agregar-modificar">
+                        <select class="form-select" name="idPrioridad" id="formIdPrioridad">
+                            <option disabled selected value="">-- Seleccione una Prioridad --</option>
+                            @foreach (var p in Model.Prioridad)
+                            {
+                                <option value="@p.idPrioridad">@p.nombrePrioridad</option>
+                            }
+                        </select>
+                    </div> 
+
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <label class="col-sm-12 col-form-label agregar-modificar" for="formIdItResponsable">IT Responsable:</label>
+                        <div class="col-sm-12 agregar-modificar">
+                            <select class="form-select" name="idItResponsable" id="formIdItResponsable">
+                                <option selected value="">-- Seleccione un IT Responsable --</option>
+                                @foreach (var it in Model.ItResponsable)
+                                {
+                                    <option value="@it.idEmpleadoIT">@it.nombreEmpleadoIT</option>
+                                }
+                            </select>                      
+                        </div>
+                    }
+
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarModalTickets()" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="modalActionButton" onclick="submitFormTickets()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/scriptTickets.js"></script>
+
+    <script type="text/javascript">
+        // Verifica si la operación fue exitosa
+        @if (Model.exito == true)
+        {
+            <text>
+                    Swal.fire({
+                        title: "¡Excelente!",
+                        text: "El ticket se ha guardado exitosamente.",
+                        icon: "success",
+                        confirmButtonText: "OK"
+                    });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorSQL = ViewData["ErrorSQL"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorSQL))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorSQL}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirigir a la página Index
+                        window.location.href = '../Index';
+                    }
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @{
+            var errorMessage = TempData["ErrorMessage"] as string;
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{errorMessage}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+        @if (!string.IsNullOrEmpty(Model.errorFechaFinalizacion))
+        {
+            <text>
+                Swal.fire({
+                    title: "Oops...",
+                    text: @Html.Raw($"\"{Model.errorFechaFinalizacion}\""),
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+            // Verifica si la operación fue exitosa
+        @if (Model.finalizar == true)
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                    text: "La fecha de finalización del ticket se ha guardado exitosamente.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+
+    <script type="text/javascript">
+            // Verifica si la operación fue exitosa
+        @if (Model.reabrir == true)
+        {
+            <text>
+                Swal.fire({
+                    title: "¡Excelente!",
+                    text: "El ticket se ha reabierto exitosamente.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+
+        @if (Model.comenzar == true)
+        {
+            <text>
+                    Swal.fire({
+                    title: "¡Excelente!",
+                    text: "Ahora estás trabajando en un ticket.",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            </text>
+        }
+    </script>
+}
